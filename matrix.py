@@ -78,4 +78,6 @@ class Matrix:
         return False
 
 if __name__ == '__main__':
-    print(Matrix())
+    m = Matrix()
+    with open(input("Введите имя файла с разрешением: "), "w") as file:
+        print(m, file=file)
