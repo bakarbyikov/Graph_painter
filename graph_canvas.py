@@ -1,10 +1,7 @@
-from math import dist, pi
 import tkinter as tk
-from collections import defaultdict
-from functools import partial
-from itertools import combinations
-from random import random, randrange
 from cmath import rect
+from functools import partial
+from math import dist, pi
 
 from my_graph import Graph
 
@@ -12,7 +9,7 @@ figID = int
 
 class Vertex:
     def __init__(self, canvas: tk.Canvas, 
-                 x: int, y: int):
+                 x: int=0, y: int=0):
         self.canvas = canvas
         self.r = 10
         self.oval = canvas.create_oval(x-self.r, y-self.r, x+self.r, y+self.r, 
@@ -45,28 +42,34 @@ class Edge:
         self.canvas.coords(self.line, *self.start.center, *self.end.center)
 
 class Graph_canvas(tk.Canvas):
-    def __init__(self, master, graph) -> None:
+    def __init__(self, master, graph: Graph) -> None:
         self.height, self.width = 400, 400
         super().__init__(master, bg="white", height=self.height, width=self.width)
+        self.graph = graph
         
         self.bind("<Button-1>", self.choose)
         self.bind("<ButtonRelease-1>", self.unchoose)
         self.draw_graph(graph)
     
-    def draw_graph(self, graph):
-        vertices = {}
-        for i, vertex in enumerate(graph.keys()):
-            xy = rect(self.height//3, i*pi*2/len(graph.keys()))
+    def reset_positions(self):
+        for i, vertex in enumerate(self.vertices_by_figID.values()):
+            xy = rect(self.height//3, i*pi*2/len(graph.vertices))
             x, y = xy.real+self.width//2, xy.imag+self.height//2
-            vertices[vertex] = Vertex(self, x, y)
+            vertex.moveto(x, y)
+    
+    def draw_graph(self, graph: Graph):
+        vertices = {}
+        for i, vertex in enumerate(graph.vertices):
+            vertices[vertex] = Vertex(self)
 
         for k_start in vertices.keys():
-            for k_end in graph[k_start]:
+            for k_end in graph.list_adjacent(k_start):
                 start, end = vertices[k_start], vertices[k_end]
                 edge = Edge(self, start, end)
                 start.add_edge(edge)
                 end.add_edge(edge)
         self.vertices_by_figID = {v.oval: v for v in vertices.values()}
+        self.reset_positions()
     
     def dist(self, point: tuple[int, int], figure: figID) -> float:
         x1, y1, x2, y2 = self.bbox(figure)
@@ -105,6 +108,6 @@ if __name__ == "__main__":
     root = tk.Tk()
     matrix = read_adjacency("test3.txt")
     graph = Graph.from_adjacency(matrix)
-    canvas = Graph_canvas(root, graph.edges)
+    canvas = Graph_canvas(root, graph)
     canvas.pack()
     root.mainloop()

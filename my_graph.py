@@ -49,8 +49,10 @@ class Graph:
             self.edges[mapping[k1]][mapping[k2]] = old[k1][k2]
             if not self.edges[mapping[k1]][mapping[k2]]:
                 del self.edges[mapping[k1]][mapping[k2]]
-        
     
+    def list_adjacent(self, vertex: str) -> list[str]:
+        return [name for name, count in self.edges[vertex].items() if count > 0]
+
     def __eq__(self, value: 'Graph') -> bool:
         if len(self.vertices) != len(value.vertices):
             return False
