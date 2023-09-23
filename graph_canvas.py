@@ -1,4 +1,4 @@
-from math import pi
+from math import dist, pi
 import tkinter as tk
 from collections import defaultdict
 from functools import partial
@@ -14,7 +14,8 @@ class Vertex:
                  x: int, y: int, r: int=10):
         self.canvas = canvas
         self.r = r
-        self.figID = canvas.create_oval(x-r, y-r, x+r, y+r, fill="red")
+        self.figID = canvas.create_oval(x-r, y-r, x+r, y+r, 
+                                        fill="red", tags="movable")
         self.edges = set()
     
     def add_edge(self, edge: 'Edge'):
@@ -49,6 +50,7 @@ class Graph_canvas(tk.Canvas):
         super().__init__(master, bg="white", height=self.height, width=self.width)
         
         self.bind("<Button-1>", self.choose)
+        self.bind("<ButtonRelease-1>", self.unchoose)
         self.draw_graph(graph)
     
     def draw_graph(self, graph):
@@ -66,26 +68,44 @@ class Graph_canvas(tk.Canvas):
                 start.add_edge(edge)
                 end.add_edge(edge)
         self.vertices_by_figID = {v.figID: v for v in vertices.values()}
-
+    
+    def dist(self, point: tuple[int, int], figID: int) -> float:
+        x1, y1, x2, y2 = self.bbox(figID)
+        center = (x1+x2)/2, (y1+y2)/2
+        return dist(center, point)
+    
+    def find_target(self, x: float, y: float) -> int:
+        halo = 5
+        finded = self.find_overlapping(x-halo, y-halo,
+                                       x+halo, y+halo)
+        movable = set(finded) & set(self.find_withtag("movable"))
+        if not movable:
+            return None
+        nearest = min(movable, key=partial(self.dist, (x, y)))
+        return nearest
+    
     def update(self, vertex: Vertex, event):
         vertex.moveto(event.x, event.y)
 
+    def unchoose(self, event):
+        self.unbind("<B1-Motion>")
+
     def choose(self, event):
-        finded = self.find_closest(event.x, event.y, 10, 'static')
-        vertex = self.vertices_by_figID[finded[0]]
+        target = self.find_target(event.x, event.y)
+        if target is None:
+            return
+        vertex = self.vertices_by_figID[target]
+        self.update(vertex, event)
         self.bind("<B1-Motion>", partial(self.update, vertex))
 
 
 
 if __name__ == "__main__":
+    from file_parcer import read_adjacency
+
     root = tk.Tk()
-    g = Graph_canvas(root)
-    g.pack()
-    
-    matrix = [[0, 1, 1, 1],
-              [1, 0, 0, 1],
-              [1, 0, 0, 0],
-              [1, 1, 0, 0]]
-    
-    g.draw_graph(Graph.from_adjacency(matrix).edges)
+    matrix = read_adjacency("test3.txt")
+    graph = Graph.from_adjacency(matrix)
+    canvas = Graph_canvas(root, graph.edges)
+    canvas.pack()
     root.mainloop()
