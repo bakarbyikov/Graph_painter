@@ -21,8 +21,9 @@ class Graph:
     def from_adjacency(cls, matrix: list[list[int]]) -> 'Graph':
         edges = defaultdict(partial(defaultdict, int))
         for i, row in enumerate(matrix):
+            edges[str(i)] = edges.default_factory()
             for j, value in enumerate(row):
-                if not value:
+                if value <= 0:
                     continue
                 edges[str(i)][str(j)] = value
         return cls(edges)
@@ -94,13 +95,7 @@ class Graph:
         
 
 if __name__ == '__main__':
-    matrix = read_adjacency("test2_A.txt")
+    matrix = read_adjacency("test3.txt")
     g1 = Graph.from_adjacency(matrix)
-    print(g1, '='*10)
-    
-    matrix = read_adjacency("test2_B.txt")
-    g2 = Graph.from_adjacency(matrix)
-    print(g2, '='*10)
-    print(g1==g2)
-
+    print(g1)
 
