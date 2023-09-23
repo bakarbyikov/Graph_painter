@@ -52,8 +52,9 @@ class Graph_canvas(tk.Canvas):
         self.draw_graph(graph)
     
     def reset_positions(self):
+        n_vertices = len(self.vertices_by_figID.keys())
         for i, vertex in enumerate(self.vertices_by_figID.values()):
-            xy = rect(self.height//3, i*pi*2/len(graph.vertices))
+            xy = rect(self.height//3, i*pi*2/n_vertices+0.25)
             x, y = xy.real+self.width//2, xy.imag+self.height//2
             vertex.moveto(x, y)
     

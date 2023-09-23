@@ -36,7 +36,7 @@ class Graph_notebook(tk.Frame):
     def open(self, path: str):
         matrix = read_adjacency(path)
         self.graph = Graph.from_adjacency(matrix)
-        canvas = Graph_canvas(self.notebook, self.graph.edges)
+        canvas = Graph_canvas(self.notebook, self.graph)
         canvas.pack(fill=tk.BOTH, expand=True)
         name = Path(path).name
 
