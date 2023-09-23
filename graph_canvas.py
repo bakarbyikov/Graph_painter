@@ -8,13 +8,14 @@ from cmath import rect
 
 from my_graph import Graph
 
+figID = int
 
 class Vertex:
     def __init__(self, canvas: tk.Canvas, 
-                 x: int, y: int, r: int=10):
+                 x: int, y: int):
         self.canvas = canvas
-        self.r = r
-        self.figID = canvas.create_oval(x-r, y-r, x+r, y+r, 
+        self.r = 10
+        self.oval = canvas.create_oval(x-self.r, y-self.r, x+self.r, y+self.r, 
                                         fill="red", tags="movable")
         self.edges = set()
     
@@ -23,11 +24,11 @@ class Vertex:
 
     @property
     def center(self) -> tuple[float, float]:
-        x0, y0, x1, y1 = self.canvas.coords(self.figID)
+        x0, y0, x1, y1 = self.canvas.coords(self.oval)
         return (x0+x1)/2, (y0+y1)/2
     
     def moveto(self, x: int, y: int):
-        self.canvas.moveto(self.figID, x-self.r, y-self.r)
+        self.canvas.moveto(self.oval, x-self.r, y-self.r)
         for edge in self.edges:
             edge.update()
 
@@ -37,12 +38,11 @@ class Edge:
                  start: Vertex, end: Vertex) -> None:
         self.canvas = canvas
         self.start, self.end = start, end
-        self.figID = self.canvas.create_line(*self.start.center, 
-                                             *self.end.center, 
-                                             tags="static")
+        self.line = self.canvas.create_line(*self.start.center,
+                                            *self.end.center)
     
     def update(self):
-        self.canvas.coords(self.figID, *self.start.center, *self.end.center)
+        self.canvas.coords(self.line, *self.start.center, *self.end.center)
 
 class Graph_canvas(tk.Canvas):
     def __init__(self, master, graph) -> None:
@@ -54,12 +54,11 @@ class Graph_canvas(tk.Canvas):
         self.draw_graph(graph)
     
     def draw_graph(self, graph):
-        r = 10
         vertices = {}
         for i, vertex in enumerate(graph.keys()):
             xy = rect(self.height//3, i*pi*2/len(graph.keys()))
             x, y = xy.real+self.width//2, xy.imag+self.height//2
-            vertices[vertex] = Vertex(self, x, y, r)
+            vertices[vertex] = Vertex(self, x, y)
 
         for k_start in vertices.keys():
             for k_end in graph[k_start]:
@@ -67,14 +66,14 @@ class Graph_canvas(tk.Canvas):
                 edge = Edge(self, start, end)
                 start.add_edge(edge)
                 end.add_edge(edge)
-        self.vertices_by_figID = {v.figID: v for v in vertices.values()}
+        self.vertices_by_figID = {v.oval: v for v in vertices.values()}
     
-    def dist(self, point: tuple[int, int], figID: int) -> float:
-        x1, y1, x2, y2 = self.bbox(figID)
+    def dist(self, point: tuple[int, int], figure: figID) -> float:
+        x1, y1, x2, y2 = self.bbox(figure)
         center = (x1+x2)/2, (y1+y2)/2
         return dist(center, point)
     
-    def find_target(self, x: float, y: float) -> int:
+    def find_target(self, x: float, y: float) -> figID:
         halo = 5
         finded = self.find_overlapping(x-halo, y-halo,
                                        x+halo, y+halo)
