@@ -4,7 +4,7 @@ from functools import partial
 from io import StringIO
 from itertools import combinations, permutations, product, repeat
 
-from file_parcer import from_adjacency
+from file_parcer import read_adjacency
 
 
 class Graph:
@@ -94,11 +94,11 @@ class Graph:
         
 
 if __name__ == '__main__':
-    matrix = from_adjacency("test2_A.txt")
+    matrix = read_adjacency("test2_A.txt")
     g1 = Graph.from_adjacency(matrix)
     print(g1, '='*10)
     
-    matrix = from_adjacency("test2_B.txt")
+    matrix = read_adjacency("test2_B.txt")
     g2 = Graph.from_adjacency(matrix)
     print(g2, '='*10)
     print(g1==g2)

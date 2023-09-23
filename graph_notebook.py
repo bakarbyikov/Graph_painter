@@ -3,7 +3,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
 from graph_canvas import Graph_canvas
-from file_parcer import from_adjacency
+from file_parcer import read_adjacency
 
 from my_graph import Graph
 
@@ -34,7 +34,7 @@ class Graph_notebook(tk.Frame):
         self.notebook.add(open_graph, text="+")
     
     def open(self, path: str):
-        matrix = from_adjacency(path)
+        matrix = read_adjacency(path)
         self.graph = Graph.from_adjacency(matrix)
         canvas = Graph_canvas(self.notebook, self.graph.edges)
         canvas.pack(fill=tk.BOTH, expand=True)

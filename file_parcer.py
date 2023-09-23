@@ -1,5 +1,5 @@
 
-def from_adjacency(path: str) -> list[list[int]]:
+def read_adjacency(path: str) -> list[list[int]]:
     with open(path) as file:
         size = int(file.readline())
         matrix = list()
