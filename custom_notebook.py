@@ -5,11 +5,11 @@ class CustomNotebook(ttk.Notebook):
     """A ttk Notebook with close buttons on each tab"""
 
     __initialized = False
-
+    
     def __init__(self, *args, **kwargs):
         if not self.__initialized:
             self.__initialize_custom_style()
-            self.__inititialized = True
+            CustomNotebook.__initialized = True
 
         kwargs["style"] = "CustomNotebook"
         ttk.Notebook.__init__(self, *args, **kwargs)
