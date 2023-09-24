@@ -2,6 +2,7 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from exceptions import BadFile
 from graph_canvas import Graph_canvas
 from file_parcer import read_adjacency
 
@@ -34,7 +35,11 @@ class Graph_notebook(tk.Frame):
         self.notebook.add(open_graph, text="+")
     
     def open(self, path: str):
-        matrix = read_adjacency(path)
+        try:
+            matrix = read_adjacency(path)
+        except BadFile as e:
+            tk.messagebox.showerror(title=e.__doc__, message=e)
+            raise
         self.graph = Graph.from_adjacency(matrix)
         canvas = Graph_canvas(self.notebook, self.graph)
         canvas.pack(fill=tk.BOTH, expand=True)

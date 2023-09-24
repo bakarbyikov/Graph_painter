@@ -8,7 +8,7 @@ def read_size(file: TextIOWrapper) -> int:
     try:
         size = int(line)
     except ValueError:
-        raise BadFile(f"Некорректный размер матрицы: '{line}'.")
+        raise BadFile(f"Некорректный размер матрицы: '{line}'")
     else:
         return size
 
@@ -16,14 +16,14 @@ def read_row(file: TextIOWrapper, n: int, n_parts: int) -> list[int]:
     line = file.readline()
     parts = line.split()
     if len(parts) != n_parts:
-        raise BadFile((f"Некорректная длинна строки {n}: ",
-                        f"Ожидалось {n_parts}, получено {len(parts)}."))
+        raise BadFile(f"Некорректная длинна строки {n}: "\
+                      +f"Ожидалось {n_parts}, получено {len(parts)}")
     result = list()
     for i, raw in enumerate(parts):
         try:
             parsed = int(raw)
         except ValueError:
-            raise BadFile(f"Некорректный символ {i} строки {n}: {raw}.")
+            raise BadFile(f"Некорректный символ {i} строки {n}: {raw}")
         else:
             result.append(parsed)
 
