@@ -27,7 +27,9 @@ class App(tk.Tk):
     def reachability(self):
         graph = self.notebooks[0].graph
         text = StringIO()
-        print(*graph.reachability(), sep='\n', file=text)
+        print(' ', *graph.vertices, file=text)
+        for name, row in zip(graph.vertices, graph.reachability()):
+            print(name, *row, file=text)
         tk.messagebox.showinfo(message=text.getvalue())
 
     
