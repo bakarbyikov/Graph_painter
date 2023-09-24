@@ -1,7 +1,7 @@
 import tkinter as tk
 from cmath import rect
 from functools import partial
-from math import dist, pi
+from math import atan2, cos, dist, pi, sin
 
 from my_graph import Graph
 
@@ -11,7 +11,7 @@ class Vertex:
     def __init__(self, canvas: tk.Canvas, 
                  x: int=0, y: int=0):
         self.canvas = canvas
-        self.r = 10
+        self.r = 20
         self.oval = canvas.create_oval(x-self.r, y-self.r, x+self.r, y+self.r, 
                                         fill="red", tags="movable")
         self.edges = set()
@@ -35,11 +35,20 @@ class Edge:
                  start: Vertex, end: Vertex) -> None:
         self.canvas = canvas
         self.start, self.end = start, end
-        self.line = self.canvas.create_line(*self.start.center,
-                                            *self.end.center)
+        self.line = self.canvas.create_line(0, 0, 0, 0,
+                                            arrow=tk.LAST,
+                                            arrowshape=(16,20,6))
+    
+    def offset(self, start: Vertex, end: Vertex) -> tuple[float, float, float, float]:
+        (x1, y1), (x2, y2) = start.center, end.center
+        angle = atan2((y2-y1), (x2-x1))
+        r1, r2 = start.r, end.r
+        c, s = cos(angle), sin(angle)
+        return (x1+c*r1, y1+s*r1,
+                x2-c*r2, y2-s*r2)
     
     def update(self):
-        self.canvas.coords(self.line, *self.start.center, *self.end.center)
+        self.canvas.coords(self.line, *self.offset(self.start, self.end))
 
 class Graph_canvas(tk.Canvas):
     def __init__(self, master, graph: Graph) -> None:
