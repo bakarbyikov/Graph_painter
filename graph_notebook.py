@@ -7,6 +7,7 @@ from graph_canvas import Graph_canvas
 from file_parcer import read_adjacency
 
 from my_graph import Graph
+from custom_notebook import CustomNotebook
 
 
 class Graph_opener(tk.Frame):
@@ -26,7 +27,7 @@ class Graph_notebook(tk.Frame):
     def __init__(self, master):
         super().__init__(master)
 
-        self.notebook = ttk.Notebook(self, height=400, width=400)
+        self.notebook = CustomNotebook(self, height=400, width=400)
         self.notebook.pack(fill=tk.BOTH, expand=True)
 
         open_graph = Graph_opener(self)
@@ -46,6 +47,7 @@ class Graph_notebook(tk.Frame):
         name = Path(path).name
 
         self.notebook.add(canvas, text=name)
+        self.notebook.select(self.notebook.tabs()[-1])
         
 
 
