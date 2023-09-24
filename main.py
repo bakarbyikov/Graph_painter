@@ -1,3 +1,4 @@
+from io import StringIO
 import tkinter as tk
 from graph_canvas import Graph_canvas
 from graph_notebook import Graph_notebook
@@ -19,8 +20,16 @@ class App(tk.Tk):
     def create_menu(self):
         menu = tk.Menu(self)
         menu.add_command(label="Изоморфность", command=self.test_equal)
+        menu.add_command(label="Достижимость", command=self.reachability)
         # menu.add_command(label="Справка")
         return menu
+    
+    def reachability(self):
+        graph = self.notebooks[0].graph
+        text = StringIO()
+        print(*graph.reachability(), sep='\n', file=text)
+        tk.messagebox.showinfo(message=text.getvalue())
+
     
     def test_equal(self):
         left = self.notebooks[0].graph

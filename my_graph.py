@@ -63,27 +63,27 @@ class Graph:
                 return True
         return False
         
-    # def all_renames(self):
-    #     to_visit = set(self.edges.keys())
-    #     path = [to_visit.pop()]
-    #     while path:
-    #         node = path[-1]
+    def reachability(self) -> list[list[bool]]:
+        reachable = defaultdict(set)
+        visited = set()
+        path = [self.vertices[0]]
+        while path:
+            current = path[-1]
+            reachable[current].add(current)
+            visited.add(current)
+
+            for child in self.edges[current].keys():
+                if child in visited:
+                    reachable[current].update(reachable[child])
+                    continue
+                reachable[current].add(child)
+                path.append(child)
+                break
+            else:
+                path.pop()
         
-    # def swap(self, i: str, j: str):
-    #     self.edges[i], self.edges[j] = self.edges[j], self.edges[i]
-    #     for edge in self.edges.values():
-    #         edge[i], edge[j] = edge[j], edge[i]
-    #         if not edge[i]:
-    #             del edge[i]
-    #         if not edge[j]:
-    #             del edge[j]
-    
-    # def vertecies_by_degree(self) -> dict[int, str]:
-    #     vert = defaultdict(set)
-    #     for k, v in self.degree:
-    #         vert[v].add(k)
-        
-    #     return vert
+        return [[int(i in v) for i in self.vertices] for _, v in sorted(reachable.items())]
+
 
 
     def __str__(self) -> str:
@@ -97,7 +97,7 @@ class Graph:
         
 
 if __name__ == '__main__':
-    matrix = read_adjacency("test3.txt")
+    matrix = read_adjacency("examples/test3.txt")
     g1 = Graph.from_adjacency(matrix)
-    print(g1)
+    print(*g1.reachability(), sep='\n')
 
