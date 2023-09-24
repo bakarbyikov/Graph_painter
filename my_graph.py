@@ -52,16 +52,31 @@ class Graph:
     
     def list_adjacent(self, vertex: str) -> list[str]:
         return [name for name, count in self.edges[vertex].items() if count > 0]
+    
+    def all_nicknames(self):
+        yield from permutations(self.vertices)
+    
+    def correct_nicknames(self):
+        not_degree = defaultdict(set)
+        for vertex, degree in self.degree.items():
+            not_degree[degree].add(vertex)
+        
+        data = [self.degree[v] for v in self.vertices]
+        for nickname in product(*[not_degree[d] for d in data]):
+            if len(set(nickname)) < len(nickname):
+                continue
+            yield nickname
 
     def __eq__(self, value: 'Graph') -> bool:
         if len(self.vertices) != len(value.vertices):
             return False
         
-        for nickname in permutations(self.vertices):
+        for nickname in self.correct_nicknames():
             self.rename({i: j for i, j in zip(self.vertices, nickname)})
             if self.edges == value.edges:
                 return True
         return False
+    
         
     def reachability(self) -> list[list[bool]]:
         reachable = defaultdict(set)
@@ -99,5 +114,6 @@ class Graph:
 if __name__ == '__main__':
     matrix = read_adjacency("examples/test3.txt")
     g1 = Graph.from_adjacency(matrix)
-    print(*g1.reachability(), sep='\n')
+    print(len(list(g1.all_nicknames())))
+    print(len(list(g1.correct_nicknames())))
 
