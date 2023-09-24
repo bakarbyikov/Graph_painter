@@ -26,6 +26,7 @@ def read_row(file: TextIOWrapper, n: int, n_parts: int) -> list[int]:
             raise BadFile(f"Некорректный символ {i} строки {n}: {raw}")
         else:
             result.append(parsed)
+    return result
 
 def read_adjacency(path: str) -> list[list[int]]:
     with open(path) as file:
@@ -34,4 +35,4 @@ def read_adjacency(path: str) -> list[list[int]]:
     return matrix
 
 if __name__ == '__main__':
-    print(read_adjacency("examples/empty.txt"))
+    print(read_adjacency("examples/test1_A.txt"))
