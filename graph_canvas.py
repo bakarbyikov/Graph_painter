@@ -9,11 +9,18 @@ figID = int
 
 class Vertex:
     def __init__(self, canvas: tk.Canvas, 
+                 name: str,
                  x: int=0, y: int=0):
         self.canvas = canvas
         self.r = 20
-        self.oval = canvas.create_oval(x-self.r, y-self.r, x+self.r, y+self.r, 
+        self.oval = canvas.create_oval(-self.r, -self.r, self.r, self.r, 
                                         fill="red", tags="movable")
+        self.text = canvas.create_text(0, 0, text=name,
+                                       width=self.r*2,
+                                       font=('Helvetica', '20'))
+        
+        x1, y1, x2, y2 = self.canvas.bbox(self.text)
+        self.text_offset = (x2-x1)/2, (y2-y1)/2
         self.edges = set()
     
     def add_edge(self, edge: 'Edge'):
@@ -26,6 +33,7 @@ class Vertex:
     
     def moveto(self, x: int, y: int):
         self.canvas.moveto(self.oval, x-self.r, y-self.r)
+        self.canvas.moveto(self.text, x-self.text_offset[0], y-self.text_offset[1])
         for edge in self.edges:
             edge.update()
 
@@ -63,14 +71,14 @@ class Graph_canvas(tk.Canvas):
     def reset_positions(self):
         n_vertices = len(self.vertices_by_figID.keys())
         for i, vertex in enumerate(self.vertices_by_figID.values()):
-            xy = rect(self.height//3, i*pi*2/n_vertices+0.25)
+            xy = rect(self.height//3, i*pi*2/n_vertices-pi/2)
             x, y = xy.real+self.width//2, xy.imag+self.height//2
             vertex.moveto(x, y)
     
     def draw_graph(self, graph: Graph):
         vertices = {}
         for i, vertex in enumerate(graph.vertices):
-            vertices[vertex] = Vertex(self)
+            vertices[vertex] = Vertex(self, vertex)
 
         for k_start in vertices.keys():
             for k_end in graph.list_adjacent(k_start):
@@ -116,7 +124,7 @@ if __name__ == "__main__":
     from file_parcer import read_adjacency
 
     root = tk.Tk()
-    matrix = read_adjacency("test3.txt")
+    matrix = read_adjacency("examples/test3.txt")
     graph = Graph.from_adjacency(matrix)
     canvas = Graph_canvas(root, graph)
     canvas.pack()
