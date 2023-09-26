@@ -1,4 +1,6 @@
+from io import StringIO
 import tkinter as tk
+from tkinter import messagebox
 from cmath import rect
 from functools import partial
 from math import atan2, cos, dist, pi, sin
@@ -67,6 +69,29 @@ class Graph_canvas(tk.Canvas):
         self.bind("<Button-1>", self.choose)
         self.bind("<ButtonRelease-1>", self.unchoose)
         self.draw_graph(graph)
+        self.create_menu()
+    
+    def create_menu(self):
+        self.menu = tk.Menu(self, tearoff=0)
+        self.menu.add_command(label="Матрица достижимости", 
+                              command=self.show_reachability)
+        
+        def do_popup(event):
+            try:
+                self.menu.tk_popup(event.x_root, event.y_root)
+            finally:
+                self.menu.grab_release()
+        
+        self.bind("<Button-3>", do_popup)
+
+    def show_reachability(self):
+        graph = self.graph
+        text = StringIO()
+        print(' ', *graph.vertices, file=text)
+        for name, row in zip(graph.vertices, graph.reachability()):
+            print(name, *row, file=text)
+        messagebox.showinfo(title="Матрица достижимости",
+                            message=text.getvalue())
     
     def reset_positions(self):
         n_vertices = len(self.vertices_by_figID.keys())
