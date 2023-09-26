@@ -21,7 +21,7 @@ def read_row(file: TextIOWrapper, n: int, n_parts: int) -> list[int]:
     result = list()
     for i, raw in enumerate(parts):
         try:
-            parsed = int(raw)
+            parsed = float(raw)
         except ValueError:
             raise BadFile(f"Некорректный символ {i} строки {n}: {raw}")
         else:
@@ -33,6 +33,9 @@ def read_adjacency(path: str) -> list[list[int]]:
         size = read_size(file)
         matrix = [read_row(file, i, size) for i in range(size)]
     return matrix
+
+def read_weighted(path: str) -> list[list[int]]:
+    return read_adjacency(path)
 
 if __name__ == '__main__':
     print(read_adjacency("examples/test1_A.txt"))
