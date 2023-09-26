@@ -6,13 +6,12 @@ from functools import partial
 from math import atan2, cos, dist, pi, sin
 
 from my_graph import Graph
+from widgets import show_table
 
 figID = int
 
 class Vertex:
-    def __init__(self, canvas: tk.Canvas, 
-                 name: str,
-                 x: int=0, y: int=0):
+    def __init__(self, canvas: tk.Canvas, name: str):
         self.canvas = canvas
         self.r = 20
         self.oval = canvas.create_oval(-self.r, -self.r, self.r, self.r, 
@@ -38,7 +37,6 @@ class Vertex:
         self.canvas.moveto(self.text, x-self.text_offset[0], y-self.text_offset[1])
         for edge in self.edges:
             edge.update()
-
 
 class Edge:
     def __init__(self, canvas: tk.Canvas, 
@@ -72,26 +70,29 @@ class Graph_canvas(tk.Canvas):
         self.create_menu()
     
     def create_menu(self):
-        self.menu = tk.Menu(self, tearoff=0)
-        self.menu.add_command(label="Матрица достижимости", 
+        menu = tk.Menu(self, tearoff=0)
+        menu.add_command(label="Матрица достижимости", 
                               command=self.show_reachability)
         
         def do_popup(event):
             try:
-                self.menu.tk_popup(event.x_root, event.y_root)
+                menu.tk_popup(event.x_root, event.y_root)
             finally:
-                self.menu.grab_release()
+                menu.grab_release()
         
         self.bind("<Button-3>", do_popup)
 
     def show_reachability(self):
-        graph = self.graph
-        text = StringIO()
-        print(' ', *graph.vertices, file=text)
-        for name, row in zip(graph.vertices, graph.reachability()):
-            print(name, *row, file=text)
-        messagebox.showinfo(title="Матрица достижимости",
-                            message=text.getvalue())
+        reachability = graph.reachability()
+        
+        table = list()
+        table.append(['',] + sorted(self.graph.vertices()))
+        for start in table[0][1:]:
+            table.append([start])
+            for end in table[0][1:]:
+                table[-1].append(int(end in reachability[start]))
+        
+        show_table(table, "Матрица достижимости")
     
     def reset_positions(self):
         n_vertices = len(self.vertices_by_figID.keys())
@@ -102,8 +103,9 @@ class Graph_canvas(tk.Canvas):
     
     def draw_graph(self, graph: Graph):
         vertices = {}
-        for i, vertex in enumerate(graph.vertices):
+        for vertex in sorted(graph.vertices()):
             vertices[vertex] = Vertex(self, vertex)
+        self.vertices_by_figID = {v.oval: v for v in vertices.values()}
 
         for k_start in vertices.keys():
             for k_end in graph.list_adjacent(k_start):
@@ -111,7 +113,6 @@ class Graph_canvas(tk.Canvas):
                 edge = Edge(self, start, end)
                 start.add_edge(edge)
                 end.add_edge(edge)
-        self.vertices_by_figID = {v.oval: v for v in vertices.values()}
         self.reset_positions()
     
     def dist(self, point: tuple[int, int], figure: figID) -> float:
@@ -151,6 +152,7 @@ if __name__ == "__main__":
     root = tk.Tk()
     matrix = read_adjacency("examples/test3.txt")
     graph = Graph.from_adjacency(matrix)
+    print(graph)
     canvas = Graph_canvas(root, graph)
     canvas.pack()
     root.mainloop()
