@@ -83,7 +83,7 @@ class Graph_canvas(tk.Canvas):
         self.bind("<Button-3>", do_popup)
 
     def show_reachability(self):
-        reachability = graph.reachability()
+        reachability = self.graph.reachability()
         
         table = list()
         table.append(['',] + sorted(self.graph.vertices()))
