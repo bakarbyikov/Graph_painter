@@ -1,0 +1,9 @@
+7
+nan 7 nan 5 nan nan nan
+7 nan 8 9 7 nan nan
+nan 8 nan nan 5 nan nan
+5 9 nan nan 15 6 nan
+nan 7 5 15 nan 8 9
+nan nan nan 6 8 nan 11
+nan nan nan nan 9 11 nan
+

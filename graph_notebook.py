@@ -2,9 +2,10 @@ from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
+from typing import Literal
 from exceptions import BadFile
 from graph_canvas import Graph_canvas
-from file_parcer import read_adjacency
+from file_parcer import read_adjacency, read_weighted
 
 from my_graph import Graph
 from custom_notebook import CustomNotebook
@@ -14,12 +15,16 @@ class Graph_opener(tk.Frame):
     def __init__(self, master, *args, **kwargs):
         super().__init__(master, *args, **kwargs)
 
-        b = tk.Button(self, text="Open file", command=self.open)
-        b.pack(anchor="center")
+        tk.Button(self, text="Открыть матрицу смежности", command=self.open_adj).pack()
+        tk.Button(self, text="Открыть матрицу весов", command=self.open_weight).pack()
     
-    def open(self):
+    def open_adj(self):
         path = filedialog.askopenfilenames(initialdir=".")[0]
-        self.master.open(path)
+        self.master.open(path, "adj")
+    
+    def open_weight(self):
+        path = filedialog.askopenfilenames(initialdir=".")[0]
+        self.master.open(path, "weight")
 
 
 class Graph_notebook(tk.Frame):
@@ -35,13 +40,22 @@ class Graph_notebook(tk.Frame):
 
         self.notebook.add(open_graph, text="+")
     
-    def open(self, path: str):
+    def open_graph(self, path: str, how: Literal['adj', 'weight']) -> Graph:
+        match how:
+            case 'adj':
+                matrix = read_adjacency(path)
+                graph = Graph.from_adjacency(matrix)
+            case "weight":
+                matrix = read_weighted(path)
+                graph = Graph.from_weights(matrix)
+        return graph
+    
+    def open(self, path: str, how: Literal['adj', 'weight']):
         try:
-            matrix = read_adjacency(path)
+            self.graph = self.open_graph(path, how)
         except BadFile as e:
             tk.messagebox.showerror(title=e.__doc__, message=e)
             raise
-        self.graph = Graph.from_adjacency(matrix)
         canvas = Graph_canvas(self.notebook, self.graph)
         canvas.pack(fill=tk.BOTH, expand=True)
         name = Path(path).name
