@@ -73,6 +73,8 @@ class Graph_canvas(tk.Canvas):
         menu = tk.Menu(self, tearoff=0)
         menu.add_command(label="Матрица достижимости", 
                               command=self.show_reachability)
+        menu.add_command(label="Оставное дерево Прима", 
+                              command=self.spanning_tree)
         
         def do_popup(event):
             try:
@@ -81,6 +83,10 @@ class Graph_canvas(tk.Canvas):
                 menu.grab_release()
         
         self.bind("<Button-3>", do_popup)
+    
+    def spanning_tree(self):
+        tree = self.graph.min_spanning_tree()
+        self.master.add_tab(tree, "Spanning tree")
 
     def show_reachability(self):
         reachability = self.graph.reachability()

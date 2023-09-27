@@ -50,18 +50,22 @@ class Graph_notebook(tk.Frame):
                 graph = Graph.from_weights(matrix)
         return graph
     
+    def add_tab(self, graph: Graph, name: str):
+        canvas = Graph_canvas(self, graph)
+        canvas.pack(fill=tk.BOTH, expand=True)
+
+        self.notebook.add(canvas, text=name)
+        self.notebook.select(self.notebook.tabs()[-1])
+
+    
     def open(self, path: str, how: Literal['adj', 'weight']):
         try:
             self.graph = self.open_graph(path, how)
         except BadFile as e:
             tk.messagebox.showerror(title=e.__doc__, message=e)
             raise
-        canvas = Graph_canvas(self.notebook, self.graph)
-        canvas.pack(fill=tk.BOTH, expand=True)
         name = Path(path).name
-
-        self.notebook.add(canvas, text=name)
-        self.notebook.select(self.notebook.tabs()[-1])
+        self.add_tab(self.graph, name)
         
 
 

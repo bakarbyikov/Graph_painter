@@ -85,7 +85,9 @@ class Graph:
     def weights(self, start: str, end: str) -> set[int|float]:
         return set(self.edges[start][end].keys())
     
-    def min_spanning_tree(self, start: str):
+    def min_spanning_tree(self, start: str=None):
+        if start is None:
+            start = self.vertices().pop()
         assert start in self.vertices()
         tree = Graph()
         chosed = set(start)
@@ -96,7 +98,7 @@ class Graph:
                 for end in self.list_adjacent(begin)-chosed:
                     weight = min(self.weights(begin, end))
                     if min_weight is None or weight < min_weight:
-                        vartex = begin, end
+                        vertex = begin, end
                         min_weight = weight
             if min_weight is None:
                 break
