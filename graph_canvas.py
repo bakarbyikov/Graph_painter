@@ -1,6 +1,5 @@
-from io import StringIO
+from statistics import mean
 import tkinter as tk
-from tkinter import messagebox
 from cmath import rect
 from functools import partial
 from math import atan2, cos, dist, pi, sin
@@ -40,12 +39,16 @@ class Vertex:
 
 class Edge:
     def __init__(self, canvas: tk.Canvas, 
-                 start: Vertex, end: Vertex) -> None:
+                 start: Vertex, end: Vertex,
+                 label: str=None) -> None:
         self.canvas = canvas
         self.start, self.end = start, end
         self.line = self.canvas.create_line(0, 0, 0, 0,
                                             arrow=tk.LAST,
                                             arrowshape=(16,20,6))
+        self.label = None
+        if label is not None:
+            self.label = self.canvas.create_text(0, 0, text=label)
     
     def offset(self, start: Vertex, end: Vertex) -> tuple[float, float, float, float]:
         (x1, y1), (x2, y2) = start.center, end.center
@@ -57,6 +60,10 @@ class Edge:
     
     def update(self):
         self.canvas.coords(self.line, *self.offset(self.start, self.end))
+        if self.label is not None:
+            (x1, y1), (x2, y2) = self.start.center, self.end.center
+            x, y = mean((x1, x2)), mean((y1, y2))
+            self.canvas.moveto(self.label, x, y)
 
 class Graph_canvas(tk.Canvas):
     def __init__(self, master, graph: Graph) -> None:
@@ -116,7 +123,8 @@ class Graph_canvas(tk.Canvas):
         for k_start in vertices.keys():
             for k_end in graph.list_adjacent(k_start):
                 start, end = vertices[k_start], vertices[k_end]
-                edge = Edge(self, start, end)
+                value = min(graph.weights(k_start, k_end))
+                edge = Edge(self, start, end, value or None)
                 start.add_edge(edge)
                 end.add_edge(edge)
         self.reset_positions()
