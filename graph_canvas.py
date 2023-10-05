@@ -82,6 +82,8 @@ class Graph_canvas(tk.Canvas):
                               command=self.show_reachability)
         menu.add_command(label="Оставное дерево Прима", 
                               command=self.spanning_tree)
+        menu.add_command(label="Матрица расстояний", 
+                              command=self.show_distance)
         
         def do_popup(event):
             try:
@@ -106,6 +108,18 @@ class Graph_canvas(tk.Canvas):
                 table[-1].append(int(end in reachability[start]))
         
         show_table(table, "Матрица достижимости")
+        
+    def show_distance(self):
+        
+        table = list()
+        table.append(['',] + sorted(self.graph.vertices()))
+        for start in table[0][1:]:
+            distance = self.graph.dedstar(start)
+            table.append([start])
+            for end in table[0][1:]:
+                table[-1].append(int(distance[end]))
+        
+        show_table(table, "Матрица расстояний")
     
     def reset_positions(self):
         n_vertices = len(self.vertices_by_figID.keys())

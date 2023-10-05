@@ -170,12 +170,27 @@ class Graph:
                 print(file=s)
             return s.getvalue()
         
+    def dedstar(self, start: str=None) -> dict[str, float]:
+        if start is None:
+            start = self.vertices().pop()
+        distanses = defaultdict(partial(float, 'inf'))
+        distanses[start] = 0
+ 
+        to_visit = self.vertices()
+        while to_visit:
+            current = min(to_visit, key=distanses.__getitem__)
+            to_visit.remove(current)
+            for child in self.list_adjacent(current) & to_visit:
+                d = distanses[current] + min(self.weights(current, child))
+                distanses[child] = min(distanses[child], d)
+        
+        return distanses
+        
 
 if __name__ == '__main__':
-    matrix = read_adjacency("examples/test3.txt")
-    g1 = Graph.from_adjacency(matrix)
+    matrix = read_adjacency("examples/weighted1.txt")
+    g1 = Graph.from_weights(matrix)
     print(g1)
-    print(g1.reachability())
-    print(len(list(g1.all_nicknames())))
-    print(len(list(g1.correct_nicknames())))
+    print(g1.dedstar('0'))
+
 
